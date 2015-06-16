@@ -135,111 +135,111 @@ public function down()
     }
  
     public function convert($database)
-    {
-        self::$instance = new self();
-        self::$database = $database;
-        $table_headers = array('Field', 'Type', 'Null', 'Key', 'Default', 'Extra');
-        $tables = self::getTables();
-        foreach ($tables as $key => $value) {
-            if (in_array($value->table_name, self::$ignore)) {
-                continue;
-            }
- 
-            $down = "Schema::drop('{$value->table_name}');";
-            $up = "Schema::create('{$value->table_name}', function($" . "table) {\n";
-            $tableDescribes = self::getTableDescribes($value->table_name);
-            foreach ($tableDescribes as $values) {
-                $method = "";
-                $para = strpos($values->Type, '(');
-                $type = $para > -1 ? substr($values->Type, 0, $para) : $values->Type;
-                $numbers = "";
-                $nullable = $values->Null == "NO" ? "" : "->nullable()";
-                $default = empty($values->Default) ? "" : "->default(\"{$values->Default}\")";
-                $unsigned = strpos($values->Type, "unsigned") === false ? '' : '->unsigned()';
-                $unique = $values->Key == 'UNI' ? "->unique()" : "";
-                $choices = '';
-                switch ($type) {
-                    case 'enum':
-                        $method = 'enum';
-                        $choices = preg_replace('/enum/', 'array', $values->Type);
-                        $choices = ", $choices";
-                        break;
-                    case 'int' :
-                        $method = 'unsignedInteger';
-                        break;
-                    case 'bigint' :
-                        $method = 'bigInteger';
-                        break;
-                    case 'samllint' :
-                        $method = 'smallInteger';
-                        break;
-                    case 'char' :
-                    case 'varchar' :
-                        $para = strpos($values->Type, '(');
-                        $numbers = ", " . substr($values->Type, $para + 1, -1);
-                        $method = 'string';
-                        break;
-                    case 'float' :
-                        $method = 'float';
-                        break;
-                    case 'decimal' :
-                        $para = strpos($values->Type, '(');
-                        $numbers = ", " . substr($values->Type, $para + 1, -1);
-                        $method = 'decimal';
-                        break;
-                    case 'tinyint' :
-                        if ($values->Type == 'tinyint(1)') {
-                            $method = 'boolean';
-                        } else {
-                            $method = 'tinyInteger';
-                        }
-                        break;
-                    case 'date':
-                        $method = 'date';
-                        break;
-                    case 'timestamp' :
-                        $method = 'timestamp';
-                        break;
-                    case 'datetime' :
-                        $method = 'dateTime';
-                        break;
-                    case 'mediumtext' :
-                        $method = 'mediumtext';
-                        break;
-                    case 'text' :
-                        $method = 'text';
-                        break;
-                }
-                if ($values->Key == 'PRI') {
-                    $method = 'increments';
-                }
-                $up .= " $" . "table->{$method}('{$values->Field}'{$choices}{$numbers}){$nullable}{$default}{$unsigned}{$unique};\n";
-            }
- 
-            $up .= " });\n\n";
-            self::$schema[$value->table_name] = array(
-                'up' => $up,
-                'down' => $down
-            );
-        }
- 
+	{
+		self::$instance = new self();
+		self::$database = $database;
+		$table_headers = array('Field', 'Type', 'Null', 'Key', 'Default', 'Extra');
+		$tables = self::getTables();
+		foreach ($tables as $key => $value) {       
+			if (in_array($value->table_name, self::$ignore)) {
+				continue;
+			}
+
+			$down = "Schema::drop('{$value->table_name}');";
+			$up = "Schema::create('{$value->table_name}', function($" . "table) {\n";
+				$tableDescribes = self::getTableDescribes($value->table_name);
+				foreach ($tableDescribes as $values) {            	
+					$method = "";
+					$para = strpos($values->Type, '(');
+						$type = $para > -1 ? substr($values->Type, 0, $para) : $values->Type;
+						$numbers = "";
+						$nullable = $values->Null == "NO" ? "" : "->nullable()";
+						$default = empty($values->Default) ? "" : "->default(\"{$values->Default}\")";
+						$unsigned = strpos($values->Type, "unsigned") === false ? '' : '->unsigned()';
+						$unique = $values->Key == 'UNI' ? "->unique()" : "";
+						$choices = '';
+						switch ($type) {
+							case 'enum':
+							$method = 'enum';
+							$choices = preg_replace('/enum/', 'array', $values->Type);
+							$choices = ", $choices";
+							break;
+							case 'int' :
+							$method = 'unsignedInteger';
+							break;
+							case 'bigint' :
+							$method = 'bigInteger';
+							break;
+							case 'samllint' :
+							$method = 'smallInteger';
+							break;
+							case 'char' :
+							case 'varchar' :
+							$para = strpos($values->Type, '(');								
+								$numbers = ", " . substr($values->Type, $para + 1, -1);								
+								$method = 'string';
+								break;
+								case 'float' :
+								$method = 'float';
+								break;
+								case 'decimal' :
+								$para = strpos($values->Type, '(');									
+									$numbers = ", " . substr($values->Type, $para + 1, -10);									
+									$method = 'decimal';                
+									break;
+									case 'tinyint' :
+									if ($values->Type == 'tinyint(1)') {
+										$method = 'boolean';
+									} else {
+										$method = 'tinyInteger';
+									}
+									break;
+									case 'date':
+									$method = 'date';
+									break;
+									case 'timestamp' :
+									$method = 'timestamp';
+									break;
+									case 'datetime' :
+									$method = 'dateTime';
+									break;
+									case 'mediumtext' :
+									$method = 'mediumtext';
+									break;
+									case 'text' :
+									$method = 'text';
+									break;
+								}
+								if ($values->Key == 'PRI') {
+									$method = 'increments';
+								}
+								$up .= " $" . "table->{$method}('{$values->Field}'{$choices}{$numbers}){$nullable}{$default}{$unsigned}{$unique};\n";
+							}
+
+							$up .= " });\n\n";
+self::$schema[$value->table_name] = array(
+	'up' => $up,
+	'down' => $down
+	);
+}
+
         // add foreign constraints, if any
-        $tableForeigns = self::getForeignTables();
-        if (sizeof($tableForeigns) !== 0) {
-            foreach ($tableForeigns as $key => $value) {
-                $up = "Schema::table('{$value->TABLE_NAME}', function($" . "table) {\n";
-                $foreign = self::getForeigns($value->TABLE_NAME);
-                foreach ($foreign as $k => $v) {
-                    $up .= " $" . "table->foreign('{$v->COLUMN_NAME}')->references('{$v->REFERENCED_COLUMN_NAME}')->on('{$v->REFERENCED_TABLE_NAME}');\n";
-                }
-                $up .= " });\n\n";
-                self::$schema[$value->TABLE_NAME . '_foreign'] = array(
-                    'up' => $up,
-                    'down' => $down
-                );
-            }
-        }
- 
-        return self::$instance;
-    }
+$tableForeigns = self::getForeignTables();
+if (sizeof($tableForeigns) !== 0) {
+	foreach ($tableForeigns as $key => $value) {
+		$up = "Schema::table('{$value->TABLE_NAME}', function($" . "table) {\n";
+			$foreign = self::getForeigns($value->TABLE_NAME);
+			foreach ($foreign as $k => $v) {
+				$up .= " $" . "table->foreign('{$v->COLUMN_NAME}')->references('{$v->REFERENCED_COLUMN_NAME}')->on('{$v->REFERENCED_TABLE_NAME}');\n";
+			}
+			$up .= " });\n\n";
+self::$schema[$value->TABLE_NAME . '_foreign'] = array(
+	'up' => $up,
+	'down' => $down
+	);
+}
+}
+
+return self::$instance;
+}
 }
